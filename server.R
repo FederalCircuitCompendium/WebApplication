@@ -29,7 +29,7 @@ appealsFields <- as.list(dbListFields(con, "appeals"));
 #Underlying list entries not changed, just their names
 ######################################################
 #Custom names follows:
-names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name');
+names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name','Withdrawn');
 
 #Selecting the earliest case date from the database 
 #for the dateRangeInput... dbGetQuery from DBI package
@@ -100,7 +100,12 @@ function(input, output, session) {
       dbGetQuery(con, "SELECT DISTINCT(duplicate) FROM appeals")[,1]
     })
     
-    # The above 9 vectors now hold the updated drop-down lists
+    uniqueWithdrawn <- reactive({
+      input$insert
+      dbGetQuery(con, "SELECT DISTINCT(Withdrawn) FROM appeals")[,1]
+    })
+    
+    # The above 10 vectors now hold the updated drop-down lists
     # for the filter items on Query Data tab.
     
     # Each time a record is inserted, the next unique ID in line 
@@ -113,8 +118,8 @@ function(input, output, session) {
     # ** USER-SELECTED CHOICES FOR FILTERING **
     # Creating filters of factors that allow multiple levels to be selected,
     # levels are determined above and are reactive.
-    # The 'selected' option default is NULL, which is all levels when multiple=TRUE.
-    output$duplicateFilter <- renderUI(selectInput('duplicateInput', 'Duplicate:', choices = uniqueDuplicate(), multiple = TRUE))
+    # The 'selected' option default is NULL, which is all levels when multiple=TRUE.  (Except for duplicates which has "No" selected by default.)
+    output$duplicateFilter <- renderUI(selectInput('duplicateInput', 'Duplicate:', choices = uniqueDuplicate(), selected = "No", multiple = TRUE))
     
     output$originFilter <- renderUI(selectInput('originInput', 'Origin:', choices = uniqueOrigin(), multiple = TRUE))
     
@@ -134,7 +139,7 @@ function(input, output, session) {
     
     output$DispGeneralFilter <- renderUI(selectInput('DispGeneralInput', 'Disposition General:', choices = uniqueDispGeneral(), multiple = TRUE))
     
-
+    output$WithdrawnFilter <- renderUI(selectInput('WithdrawnInput', 'Withdrawn:', choices = uniqueWithdrawn(), multiple = TRUE))
     
     
     # ** USER-SELECTED DISPLAY CHOICES **
@@ -212,6 +217,11 @@ function(input, output, session) {
           tempData <- subset(tempData, tempData$duplicate %in% input$duplicateInput);
         }  
         
+        #Subsetting by the desired withdrawn value on the 'Filter' tab
+        if(!is.null(input$WithdrawnInput)) {
+          tempData <- subset(tempData, tempData$Withdrawn %in% input$WithdrawnInput);
+        }  
+        
         #The resulting data frame then contains the desired subset, containing only the columns selected in the 'Display' tab
         tempData[, input$show_vars, drop = FALSE]
     })
@@ -266,6 +276,7 @@ function(input, output, session) {
                        input$TribOfOrigin,"','",
                        input$DisputeType,"','",
                        input$DispGeneral,"','",
+                       input$Withdrawn,"','",
                        input$FileName,"')",   sep="")
         
         #The line below sends insert statement to database to insert the record
@@ -294,11 +305,12 @@ function(input, output, session) {
         updateTextInput(session, inputId = "TribOfOrigin", value = "")
         updateTextInput(session, inputId = "DisputeType", value = "")
         updateTextInput(session, inputId = "DispGeneral", value = "")
+        updateTextInput(session, inputId = "Withdrawn", value = "")
         updateTextInput(session, inputId = "FileName", value = "") 
         output$ID <- renderText({paste("Record Inserted:", nextID())})
     })
     
-    # ** UPDATE A RECORD **
+    # ** VIEW A RECORD **
     #Pulls the existing record from the database after the user supplies a unique ID and clicks 'Get Record' (Update page)
     observeEvent(input$getRecord, {
         
@@ -308,6 +320,32 @@ function(input, output, session) {
         #If the user supplies an invalid ID, a message is printed
         if(length(record$uniqueID) == 0){
             output$IDNotFound <- renderText({isolate(paste0("ID ",input$updateID, " not found."))})
+            #After inputting an invalid ID, each field is cleared, 
+            updateTextInput(session, inputId = "caseDateUpdate", value = "")
+            updateTextInput(session, inputId = "originUpdate", value = "")
+            updateTextInput(session, inputId = "yearUpdate", value = "")
+            updateTextInput(session, inputId = "caseNameUpdate", value = "")
+            updateTextInput(session, inputId = "typeUpdate", value = "")
+            updateTextInput(session, inputId = "appealNumberUpdate", value = "")
+            updateTextInput(session, inputId = "docTypeUpdate", value = "")
+            updateTextInput(session, inputId = "enBancUpdate", value = "")
+            updateTextInput(session, inputId = "judge1Update", value = "")
+            updateTextInput(session, inputId = "judge2Update", value = "")
+            updateTextInput(session, inputId = "judge3Update", value = "")
+            updateTextInput(session, inputId = "opinion1Update", value = "")
+            updateTextInput(session, inputId = "opinion1AuthorUpdate", value = "")
+            updateTextInput(session, inputId = "opinion2Update", value = "")
+            updateTextInput(session, inputId = "opinion2AuthorUpdate", value = "")
+            updateTextInput(session, inputId = "opinion3Update", value = "")
+            updateTextInput(session, inputId = "opinion3AuthorUpdate", value = "")
+            updateTextInput(session, inputId = "duplicateUpdate", value = "")
+            updateTextInput(session, inputId = "notesUpdate", value = "")
+            updateTextInput(session, inputId = "urlUpdate", value = "")
+            updateTextInput(session, inputId = "TribOfOriginUpdate", value = "")
+            updateTextInput(session, inputId = "DisputeTypeUpdate", value = "")
+            updateTextInput(session, inputId = "DispGeneralUpdate", value = "")
+            updateTextInput(session, inputId = "Withdrawn", value = "")
+            updateTextInput(session, inputId = "FileNameUpdate", value = "")
         } else {
             
             #Gets rid of the invalid ID message
@@ -338,117 +376,14 @@ function(input, output, session) {
             output$DispGeneralUpdate <- renderUI(textInput('DispGeneralUpdate', "Disposition General", record$DispGeneral))
             output$FileNameUpdate <- renderUI(textInput('FileNameUpdate', "File Name", record$FileName))
             output$duplicateUpdate <- renderUI(textInput('duplicateUpdate', "Duplicate", record$duplicate))
-            output$SQLcheckButton <- renderUI(actionButton('SQLcheckButton', "Debugging - Check SQL command"))
-            output$SQLcommandUpdate <- renderText({""})
-            output$updateButton <- renderUI(actionButton('updateButton', "Update"))
+            output$WithdrawnUpdate <- renderUI(textInput('WithdrawnUpdate', "Withdrawn", record$Withdrawn))
             
         }
     }
     ) #observeEvent complete, fields populated with old information
     
     
-    #After the record has been pulled from the data, the user edits any field, and then presses 'Check SQL'
-    observeEvent(input$SQLcheckButton, {
-      #Once the button is pushed, a SQL statement is again generated which pushes the edited fields back to the database
-      #Special characters must be escaped when sending the SQL command (e.g. apostrophe)
-      query <- paste0("UPDATE appeals SET caseDate = '", input$caseDateUpdate,
-                      "', year = '", format(as.Date(input$caseDateUpdate), "%Y"),
-                      "', origin = '", input$originUpdate,
-                      "', caseName = ", sql_escape(input$caseNameUpdate),
-                      ", type = '", input$typeUpdate,
-                      "', duplicate = '", input$duplicateUpdate,
-                      "', appealNumber = '", input$appealNumberUpdate,
-                      "', docType = '", input$docTypeUpdate,
-                      "', enBanc = '", input$enBancUpdate,
-                      "', judge1 = ", sql_escape(input$judge1Update),
-                      ", judge2 = ", sql_escape(input$judge2Update),
-                      ", judge3 = ", sql_escape(input$judge3Update),
-                      ", opinion1 = ", sql_escape(input$opinion1Update),
-                      ", opinion1Author = ", sql_escape(input$opinion1AuthorUpdate),
-                      ", opinion2 = ", sql_escape(input$opinion2Update),
-                      ", opinion2Author = ", sql_escape(input$opinion2AuthorUpdate),
-                      ", opinion3 = ", sql_escape(input$opinion3Update),
-                      ", opinion3Author = ", sql_escape(input$opinion3AuthorUpdate),
-                      ", notes = ", sql_escape(input$notesUpdate),
-                      ", url = ", sql_escape(input$urlUpdate),
-                      ", TribOfOrigin = ", sql_escape(input$TribOfOriginUpdate),
-                      ", DisputeType = ", sql_escape(input$DisputeTypeUpdate),
-                      ", DispGeneral = ", sql_escape(input$DispGeneralUpdate),
-                      ", FileName = ", sql_escape(input$FileNameUpdate),
-                      " WHERE uniqueID = ", input$updateID)
-      
-      #Sends the SQL statement to 'SQLcommandUpdate' 
-      # for verification once the string has been generated
-      output$SQLcommandUpdate <- renderText({query})
-      
-    }
-    )
-    
-    
-    
-    
-    #After the record has been pulled from the data, the user edits any field, and then presses 'Update Record'
-    observeEvent(input$updateButton, {
-        #Once the button is pushed, a SQL statement is again generated which pushes the edited fields back to the database
-        #Special characters must be escaped when sending the SQL command (e.g. apostrophe)
-        query <- paste0("UPDATE appeals SET caseDate = '", input$caseDateUpdate,
-                        "', year = '", format(as.Date(input$caseDateUpdate), "%Y"),
-                        "', origin = '", input$originUpdate,
-                        "', caseName = ", sql_escape(input$caseNameUpdate),
-                        ", type = '", input$typeUpdate,
-                        "', duplicate = '", input$duplicateUpdate,
-                        "', appealNumber = '", input$appealNumberUpdate,
-                        "', docType = '", input$docTypeUpdate,
-                        "', enBanc = '", input$enBancUpdate,
-                        "', judge1 = ", sql_escape(input$judge1Update),
-                        ", judge2 = ", sql_escape(input$judge2Update),
-                        ", judge3 = ", sql_escape(input$judge3Update),
-                        ", opinion1 = ", sql_escape(input$opinion1Update),
-                        ", opinion1Author = ", sql_escape(input$opinion1AuthorUpdate),
-                        ", opinion2 = ", sql_escape(input$opinion2Update),
-                        ", opinion2Author = ", sql_escape(input$opinion2AuthorUpdate),
-                        ", opinion3 = ", sql_escape(input$opinion3Update),
-                        ", opinion3Author = ", sql_escape(input$opinion3AuthorUpdate),
-                        ", notes = ", sql_escape(input$notesUpdate),
-                        ", url = ", sql_escape(input$urlUpdate),
-                        ", TribOfOrigin = ", sql_escape(input$TribOfOriginUpdate),
-                        ", DisputeType = ", sql_escape(input$DisputeTypeUpdate),
-                        ", DispGeneral = ", sql_escape(input$DispGeneralUpdate),
-                        ", FileName = ", sql_escape(input$FileNameUpdate),
-                        " WHERE uniqueID = ", input$updateID)
-        
-        #Sends the 'Update' statement once the string has been generated
-        dbGetQuery(con, query)              
-       
-        #After updating a record, each field is cleared, 
-        updateTextInput(session, inputId = "caseDateUpdate", value = "")
-        updateTextInput(session, inputId = "originUpdate", value = "")
-        updateTextInput(session, inputId = "yearUpdate", value = "")
-        updateTextInput(session, inputId = "caseNameUpdate", value = "")
-        updateTextInput(session, inputId = "typeUpdate", value = "")
-        updateTextInput(session, inputId = "appealNumberUpdate", value = "")
-        updateTextInput(session, inputId = "docTypeUpdate", value = "")
-        updateTextInput(session, inputId = "enBancUpdate", value = "")
-        updateTextInput(session, inputId = "judge1Update", value = "")
-        updateTextInput(session, inputId = "judge2Update", value = "")
-        updateTextInput(session, inputId = "judge3Update", value = "")
-        updateTextInput(session, inputId = "opinion1Update", value = "")
-        updateTextInput(session, inputId = "opinion1AuthorUpdate", value = "")
-        updateTextInput(session, inputId = "opinion2Update", value = "")
-        updateTextInput(session, inputId = "opinion2AuthorUpdate", value = "")
-        updateTextInput(session, inputId = "opinion3Update", value = "")
-        updateTextInput(session, inputId = "opinion3AuthorUpdate", value = "")
-        updateTextInput(session, inputId = "duplicateUpdate", value = "")
-        updateTextInput(session, inputId = "notesUpdate", value = "")
-        updateTextInput(session, inputId = "urlUpdate", value = "")
-        updateTextInput(session, inputId = "TribOfOriginUpdate", value = "")
-        updateTextInput(session, inputId = "DisputeTypeUpdate", value = "")
-        updateTextInput(session, inputId = "DispGeneralUpdate", value = "")
-        updateTextInput(session, inputId = "FileNameUpdate", value = "")
-        output$IDNotFound <- renderText({isolate(paste0("Record ", input$updateID, " updated."))})
-    }
-    )
-
+   
     
     # ** LIST VARIABLES AVAILABLE TO USER FOR PLOTTING **
     # Excluding variables that don't make sense to be visualized,
