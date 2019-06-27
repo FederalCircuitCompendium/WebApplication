@@ -4,6 +4,7 @@ library(shinythemes)
 library(ggplot2)
 library(reshape2)
 
+# Version 0.99 
 # custom function for SQL sanitizing 
 # apostrophe in string field input:
 # mimics dplyr::escape
