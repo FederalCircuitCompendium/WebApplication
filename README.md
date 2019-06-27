@@ -5,4 +5,4 @@ This is the development version of the WebApplication for the Compendium.
 
 Downloading the folder in its entirety, while keeping the same names of the folders and files, will allow the user to open the development version of the WebApp in Rstudio.
 
-The full version allows modification of the .sqlite file through the application, both by adding new cases, and by modifying existing cases.
+The web application does not allow modifying the dataset, only querying it. 
