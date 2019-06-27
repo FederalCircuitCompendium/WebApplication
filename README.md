@@ -10,11 +10,11 @@ The read-only version does not allow modification of the .sqlite file through th
 Version numbering: 
 
 a. The file server.R will follow the following version instructions: 
-The version numbering starts with 1.00, released on Friday, June 24.  Prior versions are pre-1.00.  
+The version numbering starts with 1.00, released on Friday, June 27.  Prior versions are pre-1.00.  
 Each successive release containing minor feature improvements, including new fields, will increment the tenths place by one. 
 Each successive release containing major feature improvements will increment the integer placeby one.
 
 b.	The file ui.R will follow the following version instructions: 
-The version numbering starts with 1.00, released on Monday, June 24.  Prior versions are pre-1.00.  
+The version numbering starts with 1.00, released on Friday, June 27.  Prior versions are pre-1.00.  
 Each successive release containing minor feature improvements, including new fields, will increment the tenths place by one. 
 Each successive release containing major feature improvements will increment the integer place by one.
