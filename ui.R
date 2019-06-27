@@ -6,6 +6,7 @@ navbarPage(theme = shinytheme("yeti"),
            "Federal Circuit Decisions Database ",
            
            ###################################
+           #Version 0.99
            #Creating tab for querying the data
            tabPanel("Query Data",
                     sidebarLayout(
