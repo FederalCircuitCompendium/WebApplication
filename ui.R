@@ -1,12 +1,13 @@
-library(shiny) 
+library(shiny)
 library(RSQLite)
 library(shinythemes)
+
+#WebApp ui.R Version 1.00
 
 navbarPage(theme = shinytheme("yeti"),
            "Federal Circuit Decisions Database ",
            
            ###################################
-           #Version 0.99
            #Creating tab for querying the data
            tabPanel("Query Data",
                     sidebarLayout(
@@ -26,7 +27,10 @@ navbarPage(theme = shinytheme("yeti"),
                                    uiOutput(outputId = 'yearFilter'),
                                    uiOutput(outputId = 'TribOfOriginFilter'),
                                    uiOutput(outputId = 'DisputeTypeFilter'),
-                                   uiOutput(outputId = 'DispGeneralFilter')
+                                   uiOutput(outputId = 'DispGeneralFilter'),
+                                   uiOutput(outputId = 'WithdrawnFilter'),
+                                   uiOutput(outputId = 'DissentFilter'),
+                                   uiOutput(outputId = 'ConcurrenceFilter')
                           ),
                           #Subtab for choosing columns to display
                           tabPanel("Display",
@@ -44,61 +48,10 @@ navbarPage(theme = shinytheme("yeti"),
                     )
            ),
            
-           ##############################
-           #Tab for inserting new records
-           tabPanel("Insert Data", 
-                    mainPanel(wellPanel(
-                      fluidRow(
-                        column(6,
-                               #Creating textinputs for all columns in the database
-                               #Autopopulate the case date to today
-                               textInput('caseDate', "Enter Case Date:", Sys.Date()), 
-                               textInput('origin', "Enter Origin:",""), 
-                               textInput('caseName', "Enter Case Name:",""), 
-                               textInput('type', "Enter Precedential Status:",""), 
-                               textInput('appealNumber', "Enter Appeal Number:",""), 
-                               textInput('docType', "Enter Document Type:",""), 
-                               textInput('enBanc', "Enter EnBanc:",""), 
-                               textInput('judge1', "Enter Judge 1:",""), 
-                               textInput('judge2', "Enter Judge 2:",""), 
-                               textInput('judge3', "Enter Judge 3:",""),
-                               textInput('opinion1', "Enter Opinion 1:",""),
-                               textInput('opinion1Author', "Enter Opinion 1 Author:","")                               
-                        ),
-                        column(6,
-                               #Continue placing text boxes on insert page
-                               textInput('opinion2', "Enter Opinion 2:", ""),
-                               textInput('opinion2Author', "Enter Opinion 2 Author:",""),
-                               textInput('opinion3', "Enter Opinion 3:", ""),
-                               textInput('opinion3Author', "Enter Opinion 3 Author:",""),
-                               textInput('duplicate', "Duplicate?:", "No"),
-                               textInput('notes', "Enter Notes:", ""),
-                               textInput('url', "Enter URL:",""),
-                               textInput('TribOfOrigin', "Enter Tribunal of Origin:",""),
-                               textInput('DisputeType', "Enter Dispute Type:",""),
-                               textInput('DispGeneral', "Enter Disposition General:",""),
-                               textInput('FileName', "Enter File Name:","")
-                        )
-                      )
-                    )
-                    
-                    ),
-                    
-                    #Text output which is used to display the uniqueID that was inserted by the application for a new record
-                    textOutput('ID'),
-                    br(),
-                    
-                    #Used to display the session insertion count
-                    textOutput("text"),
-                    br(),
-                    
-                    #Button to insert new record
-                    actionButton("insert","Insert")
-           ),
-           
+          
            ##########################################
-           #Creating tab to update an existing record
-           tabPanel("Update Record",
+           #Creating tab to view an existing record
+           tabPanel("View a Record",
                     mainPanel(
                       wellPanel(
                         fluidRow(
@@ -108,7 +61,7 @@ navbarPage(theme = shinytheme("yeti"),
                           ),
                           column(6,
                                  br(),
-                                 #Button to retreieve the record for the supplied ID
+                                 #Button to retrieve the record for the supplied ID
                                  actionButton("getRecord", "Get Record"),
                                  
                                  #Text output to be displayed for invalid supplied ID's
@@ -147,9 +100,10 @@ navbarPage(theme = shinytheme("yeti"),
                                  uiOutput('DispGeneralUpdate'),
                                  uiOutput('FileNameUpdate'),
                                  uiOutput('duplicateUpdate'),
-                                 uiOutput('SQLcheckButton'),
-                                 textOutput('SQLcommandUpdate'),
-                                 br(),
+                                 uiOutput('WithdrawnUpdate'),
+                                 uiOutput('DissentUpdate'),
+                                 uiOutput('ConcurrenceUpdate'),
+                                 uiOutput('CloudLinkUpdate'),
                                  uiOutput('updateButton')
                           )
                         )
@@ -176,4 +130,4 @@ navbarPage(theme = shinytheme("yeti"),
                       )
                     )
            )
-) 
+)
