@@ -31,7 +31,7 @@ appealsFields <- as.list(dbListFields(con, "appeals"));
 #Underlying list entries not changed, just their names
 ######################################################
 #Custom names follows:
-names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name','Withdrawn','Dissent','Concurrence','Google Cloud Link');
+names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name','Withdrawn','Dissent','Concurrence','Google Cloud Link','Number of Appeal Dockets','Appeal Dockets','Number of Original Tribunal Dockets','Original Tribunal Dockets','Number of Patents in Suit','Patents in Suit','Issue: Utility','Issue: PSM','Issue: 102','Issue: 103','Issue: Enablement','Issue: Written Description','Issue: Definiteness','Issue: Obviousness-Type Double Patenting','Issue: Claim Construction');
 
 #Selecting the earliest case date from the database 
 #for the dateRangeInput... dbGetQuery from DBI package
