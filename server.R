@@ -31,7 +31,7 @@ appealsFields <- as.list(dbListFields(con, "appeals"));
 #Underlying list entries not changed, just their names
 ######################################################
 #Custom names follows:
-names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name','Withdrawn','Dissent','Concurrence','Google Cloud Link','Number of Appeal Dockets','Appeal Dockets','Number of Original Tribunal Dockets','Original Tribunal Dockets','Number of Patents in Suit','Patents in Suit','Issue: Utility','Issue: PSM','Issue: 102','Issue: 103','Issue: Enablement','Issue: Written Description','Issue: Definiteness','Issue: Obviousness-Type Double Patenting','Issue: Claim Construction');
+names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name','Withdrawn','Dissent','Concurrence','Old Cloud Link','Number of Appeal Dockets','Appeal Dockets','Number of Original Tribunal Dockets','Original Tribunal Dockets','Number of Patents in Suit','Patents in Suit','Issue: Utility','Issue: PSM','Issue: 102','Issue: 103','Issue: Enablement','Issue: Written Description','Issue: Definiteness','Issue: Obviousness-Type Double Patenting','Issue: Claim Construction','New File Name','Google Cloud Link','Appellant Type Primary','Appellant Type Cross','Patent Owner Win');
 
 #Selecting the earliest case date from the database 
 #for the dateRangeInput... dbGetQuery from DBI package
@@ -64,7 +64,7 @@ function(input, output, session) {
     
     uniquePrecStatType <- reactive({
         input$insert
-        dbGetQuery(con, "SELECT DISTINCT(type) FROM appeals")[,1]
+        dbGetQuery(con, "SELECT DISTINCT(PrecedentialStatus) FROM appeals")[,1]
     })
     
     uniqueDocType <- reactive({
@@ -135,7 +135,7 @@ function(input, output, session) {
     
     output$originFilter <- renderUI(selectInput('originInput', 'Origin:', choices = uniqueOrigin(), multiple = TRUE))
     
-    output$typeFilter <- renderUI(selectInput("typeInput", 'Precedential Status:', choices = uniquePrecStatType(), multiple = TRUE))
+    output$PrecedentialStatusFilter <- renderUI(selectInput("PrecedentialStatusInput", 'Precedential Status:', choices = uniquePrecStatType(), multiple = TRUE))
     
     output$docTypeFilter <- renderUI(selectInput('docTypeInput', 'Document Type:', choices = uniqueDocType(), multiple = TRUE))
     
@@ -189,7 +189,7 @@ function(input, output, session) {
         }
         
         #Subsetting by the desired type levels on the 'Filter' tab
-        if(!is.null(input$typeInput)) {
+        if(!is.null(input$PrecedentialStatusInput)) {
             tempData <- subset(tempData, tempData$type %in% input$typeInput);
         }
         
@@ -279,7 +279,7 @@ function(input, output, session) {
             updateTextInput(session, inputId = "originUpdate", value = "")
             updateTextInput(session, inputId = "yearUpdate", value = "")
             updateTextInput(session, inputId = "caseNameUpdate", value = "")
-            updateTextInput(session, inputId = "typeUpdate", value = "")
+            updateTextInput(session, inputId = "PrecedentialStatusUpdate", value = "")
             updateTextInput(session, inputId = "appealNumberUpdate", value = "")
             updateTextInput(session, inputId = "docTypeUpdate", value = "")
             updateTextInput(session, inputId = "enBancUpdate", value = "")
@@ -303,6 +303,7 @@ function(input, output, session) {
             updateTextInput(session, inputId = "DissentUpdate", value = "")
             updateTextInput(session, inputId = "ConcurrenceUpdate", value = "")
             updateTextInput(session, inputId = "CloudLinkUpdate", value = "")
+            updateTextInput(session, inputId = "NewFileNameUpdate", value = "")
         } else {
             
             #Gets rid of the invalid ID message
@@ -313,7 +314,7 @@ function(input, output, session) {
             output$originUpdate <- renderUI(textInput('originUpdate', "Origin", record$origin))
             output$yearUpdate <- renderUI(textInput('yearUpdate', "Year", record$year))
             output$caseNameUpdate <- renderUI(textInput('caseNameUpdate', "Case Name", record$caseName))
-            output$typeUpdate <- renderUI(textInput('typeUpdate', "Precedential Status", record$type))
+            output$PrecedentialStatusUpdate <- renderUI(textInput('PrecedentialStatusUpdate', "Precedential Status", record$PrecedentialStatus))
             output$appealNumberUpdate <- renderUI(textInput('appealNumberUpdate', "Appeal Number", record$appealNumber))
             output$docTypeUpdate <- renderUI(textInput('docTypeUpdate', "Document Type", record$docType))
             output$enBancUpdate <- renderUI(textInput('enBancUpdate', "En Banc", record$enBanc))
@@ -337,6 +338,7 @@ function(input, output, session) {
             output$DissentUpdate <- renderUI(textInput('DissentUpdate', "Dissent", record$Dissent))
             output$ConcurrenceUpdate <- renderUI(textInput('ConcurrenceUpdate', "Concurrence", record$Concurrence))
             output$CloudLinkUpdate <- renderUI(textInput('CloudLinkUpdate', "CloudLink", record$CloudLink))
+            output$NewFileNameUpdate <- renderUI(textInput('NewFileNameUpdate', "NewFileName", record$NewFileName))
             
         }
     }
