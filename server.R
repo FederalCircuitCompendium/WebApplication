@@ -190,7 +190,7 @@ function(input, output, session) {
         
         #Subsetting by the desired type levels on the 'Filter' tab
         if(!is.null(input$PrecedentialStatusInput)) {
-            tempData <- subset(tempData, tempData$type %in% input$typeInput);
+            tempData <- subset(tempData, tempData$PrecedentialStatus %in% input$PrecedentialStatusInput);
         }
         
         #Subsetting by the desired document type levels on the 'Filter' tab
