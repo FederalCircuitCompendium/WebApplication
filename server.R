@@ -31,7 +31,7 @@ appealsFields <- as.list(dbListFields(con, "appeals"));
 #Underlying list entries not changed, just their names
 ######################################################
 #Custom names follows:
-names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Full Cite', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name','Withdrawn','Dissent','Concurrence','Old Cloud Link','Number of Appeal Dockets','Appeal Dockets','Number of Original Tribunal Dockets','Original Tribunal Dockets','Number of Patents in Suit', 'Utility Patent', 'Design Patent', 'Plant Patent', 'Patents in Suit','Issue: Utility','Issue: PSM','Issue: 102','Issue: 103','Issue: Enablement','Issue: Written Description','Issue: Definiteness','Issue: Obviousness-Type Double Patenting','Issue: Claim Construction','Appellant Type Primary','Appellant Type Cross','Patent Owner Win','Google Cloud Link','New File Name');
+names(appealsFields) = c('ID', 'Case Date', 'Year', 'Origin', 'Case Name', 'Full Cite', 'Precedential Status', 'Duplicate', 'Appeal Number', 'Document Type', 'EnBanc', 'Judge 1', 'Judge 2', 'Judge 3', 'Opinion 1', 'Opinion 1 Author', 'Opinion 2', 'Opinion 2 Author', 'Opinion 3', 'Opinion 3 Author', 'Notes', 'URL', 'Tribunal of Origin', 'Dispute Type', 'Disposition General','File Name','Replaced','Replaced_Notes','Dissent','Concurrence','Old Cloud Link','Number of Appeal Dockets','Appeal Dockets','Number of Original Tribunal Dockets','Original Tribunal Dockets','Number of Patents in Suit', 'Utility Patent', 'Design Patent', 'Plant Patent', 'Patents in Suit','Issue: Utility','Issue: PSM','Issue: 102','Issue: 103','Issue: Enablement','Issue: Written Description','Issue: Definiteness','Issue: Obviousness-Type Double Patenting','Issue: Claim Construction','Appellant Type Primary','Appellant Type Cross','Patent Owner Win','Google Cloud Link','New File Name');
 
 #Selecting the earliest case date from the database 
 #for the dateRangeInput... dbGetQuery from DBI package
@@ -102,9 +102,9 @@ function(input, output, session) {
       dbGetQuery(con, "SELECT DISTINCT(duplicate) FROM appeals")[,1]
     })
     
-    uniqueWithdrawn <- reactive({
+    uniqueReplaced <- reactive({
       input$insert
-      dbGetQuery(con, "SELECT DISTINCT(Withdrawn) FROM appeals")[,1]
+      dbGetQuery(con, "SELECT DISTINCT(Replaced) FROM appeals")[,1]
     })
     
     uniqueDissent <- reactive({
@@ -151,7 +151,7 @@ function(input, output, session) {
     
     output$DispGeneralFilter <- renderUI(selectInput('DispGeneralInput', 'Disposition General:', choices = uniqueDispGeneral(), multiple = TRUE))
     
-    output$WithdrawnFilter <- renderUI(selectInput('WithdrawnInput', 'Withdrawn:', choices = uniqueWithdrawn(), multiple = TRUE))
+    output$ReplacedFilter <- renderUI(selectInput('ReplacedInput', 'Replaced:', choices = uniqueReplaced(), multiple = TRUE))
     
     output$DissentFilter <- renderUI(selectInput('DissentInput', 'Dissent:', choices = uniqueDissent(), multiple = TRUE))
     
@@ -233,9 +233,9 @@ function(input, output, session) {
           tempData <- subset(tempData, tempData$duplicate %in% input$duplicateInput);
         }  
         
-        #Subsetting by the desired withdrawn value on the 'Filter' tab
-        if(!is.null(input$WithdrawnInput)) {
-          tempData <- subset(tempData, tempData$Withdrawn %in% input$WithdrawnInput);
+        #Subsetting by the desired Replaced value on the 'Filter' tab
+        if(!is.null(input$ReplacedInput)) {
+          tempData <- subset(tempData, tempData$Replaced %in% input$ReplacedInput);
         }  
         
         #Subsetting by the desired dissent value on the 'Filter' tab
@@ -298,7 +298,7 @@ function(input, output, session) {
             updateTextInput(session, inputId = "TribOfOriginUpdate", value = "")
             updateTextInput(session, inputId = "DisputeTypeUpdate", value = "")
             updateTextInput(session, inputId = "DispGeneralUpdate", value = "")
-            updateTextInput(session, inputId = "WithdrawnUpdate", value = "")
+            updateTextInput(session, inputId = "ReplacedUpdate", value = "")
             updateTextInput(session, inputId = "FileNameUpdate", value = "")
             updateTextInput(session, inputId = "DissentUpdate", value = "")
             updateTextInput(session, inputId = "ConcurrenceUpdate", value = "")
@@ -334,7 +334,7 @@ function(input, output, session) {
             output$DispGeneralUpdate <- renderUI(textInput('DispGeneralUpdate', "Disposition General", record$DispGeneral))
             output$FileNameUpdate <- renderUI(textInput('FileNameUpdate', "File Name", record$FileName))
             output$duplicateUpdate <- renderUI(textInput('duplicateUpdate', "Duplicate", record$duplicate))
-            output$WithdrawnUpdate <- renderUI(textInput('WithdrawnUpdate', "Withdrawn", record$Withdrawn))
+            output$ReplacedUpdate <- renderUI(textInput('ReplacedUpdate', "Replaced", record$Replaced))
             output$DissentUpdate <- renderUI(textInput('DissentUpdate', "Dissent", record$Dissent))
             output$ConcurrenceUpdate <- renderUI(textInput('ConcurrenceUpdate', "Concurrence", record$Concurrence))
             output$CloudLinkUpdate <- renderUI(textInput('CloudLinkUpdate', "CloudLink", record$CloudLink))
